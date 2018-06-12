@@ -15,7 +15,8 @@ $(document).ready(function() {
   //Mostra elementos que podem ser selecionados
   $('*').hover(
     function(e) {
-      if ($(this).hasClass('prevent-select') || $(this).hasClass(selected)) {
+      //if ($(this).hasClass('prevent-select') || $(this).hasClass(selected)) {
+      if ($(this).parents('#draggable-div').length || $(this).attr('id') == 'draggable-div') {
         e.stopPropagation();
         e.preventDefault();
         return false;
@@ -33,7 +34,8 @@ $(document).ready(function() {
 
   //Marca elemento selecionado
   $(document).on('click', '*', function(e) {
-    if ($(this).hasClass('prevent-select')) {
+    //if ($(this).hasClass('prevent-select')) {
+    if ($(this).parents('#draggable-div').length || $(this).attr('id') == 'draggable-div') {
       e.stopPropagation();
       e.preventDefault();
       return false;
@@ -45,8 +47,7 @@ $(document).ready(function() {
     }
     //Se não estiver selecionado, seleciona e inclui um input
     else {
-	  selectElement(this);
-	  insertInput();
+      selectElement(this);
     }
 
     updateMetricsCount();
@@ -69,12 +70,14 @@ $(document).ready(function() {
       $('.floating-number.float-nr' + selectedNumber).offset({ top: elOffset.top + $(el).height() + 6, left: elOffset.left });
     }
 
+    insertInput(selectedNumber);
+
     //Incrementa número para a próxima métrica
     selectedNumber++;
   }
 
-  function insertInput(){
-	  
+  function insertInput(number) {
+    $('.inputs-metricas').append(inputMetric(number));
   }
 
   function removeSelectedElement(el) {
@@ -136,22 +139,36 @@ $(document).ready(function() {
 
   function draggableDiv() {
     return `
-	<div id="draggable-div" class="prevent-select">
-		  <div id="draggable-div-header" class="prevent-select">Selecione...</div>
-		  <div class="inputs-metricas" prevent-select"></div>
-		  <span class="spn-metricas-selecionadas prevent-select">Métricas: <span class="spn-metricas-nr prevent-select">0</span></span>
-		  <button class="btn-resetar btn-drag prevent-select">Resetar Métricas</button>
-		  <button class="btn-gerar-script btn-drag prevent-select">Gerar Script</button>
+	<div id="draggable-div">
+		  <div id="draggable-div-header">Selecione...</div>
+		  <span class="spn-metricas-selecionadas">Métricas: <span class="spn-metricas-nr">0</span></span>
+		  <div class="inputs-metricas"></div>
+		  <button class="btn-resetar btn-drag">Resetar Métricas</button>
+		  <button class="btn-gerar-script btn-drag">Gerar Script</button>
 	</div>`;
   }
 
   function codeSnippet() {
     return `
-	<div id="code-snip-overlay" class="prevent-select"></div>
-	<div class="code-snippet-bg prevent-select">
-		<textarea class="txt-code-snip prevent-select"></textarea>
-		<button class="btn-copiar-script prevent-select">Copiar</button>
+	<div id="code-snip-overlay"></div>
+	<div class="code-snippet-bg">
+		<textarea class="txt-code-snip"></textarea>
+		<button class="btn-copiar-script">Copiar</button>
 	</div>`;
+  }
+
+  function inputMetric(number) {
+    return (
+      `
+	<div class="ipt-metric">
+		<span class="spn-num-metric"> ` +
+      number +
+      `</span>
+		<input class="ipt-attr-metric" placeholder="Atributo" type="text"></input>
+		<input type="checkbox"></input>
+	</div>
+	`
+    );
   }
 
   function dragElement(elmnt) {
