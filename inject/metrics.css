@@ -1,0 +1,128 @@
+.finding-element-metrics {
+  border: 2px solid blue !important;
+  cursor: pointer !important;
+}
+
+.selected-element-metrics {
+  border: 2px solid red !important;
+  cursor: not-allowed !important;
+}
+
+.floating-number {
+  font-size: 14px !important;
+  color: white !important;
+  background: red !important;
+  height: 22px !important;
+  width: 22px !important;
+  line-height: 21px !important;
+  font-weight: bold !important;
+  text-align: center !important;
+  opacity: 0.8 !important;
+  position: absolute !important;
+  cursor: not-allowed !important;
+  border-radius: 15px !important;
+  z-index: 99999999 !important;
+  -webkit-transition-property: none !important;
+  -moz-transition-property: none !important;
+  -o-transition-property: none !important;
+  transition-property: none !important;
+}
+
+.fix-element-move {
+  border: 1px solid transparent !important;
+}
+
+#draggable-div {
+  top: 10px;
+  position: absolute;
+  background-color: #f1f1f1;
+  border-width: 0px;
+  text-align: center;
+  z-index: 999999999;
+  min-width: 180px;
+  max-width: 180px;
+  border-radius: 2px;
+  cursor: default;
+}
+
+#draggable-div-header {
+  padding: 10px;
+  cursor: move;
+  z-index: 10;
+  background-color: #2196f3;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.btn-drag {
+  margin-top: 15px;
+  width: 120px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.btn-gerar-script {
+  margin-bottom: 15px;
+}
+
+.spn-metricas-selecionadas {
+  font-size: 14px;
+  display: block;
+  margin-top: 15px;
+}
+
+#code-snip-overlay {
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 2;
+  cursor: pointer;
+  z-index: 9999999999;
+}
+
+.code-snippet-bg {
+  position: fixed;
+  display: none;
+  height: 22em;
+  top: 41%;
+  left: 48%;
+  width: 34em;
+  padding: 10px;
+  margin-top: -9em;
+  margin-left: -15em;
+  border: 1px solid #ccc;
+  background-color: #f3f3f3;
+  cursor: default;
+  text-align: center;
+  z-index: 99999999999;
+}
+
+.txt-code-snip {
+  height: 85%;
+  width: 99%;
+  resize: none;
+  overflow-y: scroll;
+}
+
+.btn-copiar-script {
+  width: 120px;
+  height: 35px;
+  background: #2aca76;
+  color: #fff;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+.btn-copiar-script:hover {
+  border-color: rgba(0, 0, 0, 0.07);
+  background-color: #2fe688;
+}
