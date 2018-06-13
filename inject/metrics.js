@@ -15,8 +15,7 @@ $(document).ready(function() {
   //Mostra elementos que podem ser selecionados
   $('*').hover(
     function(e) {
-      //if ($(this).hasClass('prevent-select') || $(this).hasClass(selected)) {
-      if ($(this).parents('#draggable-div').length || $(this).attr('id') == 'draggable-div') {
+      if (isPartOfStructure($(this))) {
         e.stopPropagation();
         e.preventDefault();
         return false;
@@ -34,11 +33,16 @@ $(document).ready(function() {
 
   //Marca elemento selecionado
   $(document).on('click', '*', function(e) {
-    //if ($(this).hasClass('prevent-select')) {
-    if ($(this).parents('#draggable-div').length || $(this).attr('id') == 'draggable-div') {
-      e.stopPropagation();
-      e.preventDefault();
-      return false;
+    if (isPartOfStructure($(this))) {
+      //Não bloqueia o comportamento padrão do checkbox
+      if ($(this).attr('type') == 'checkbox') {
+        e.stopPropagation();
+        return;
+      } else {
+        e.stopPropagation();
+        e.preventDefault();
+        return false;
+      }
     }
 
     //Se já estiver selecionado, remove a métrica
@@ -84,8 +88,19 @@ $(document).ready(function() {
     const className = Array.from(el.classList).find(className => className.indexOf('float-nr') !== -1);
     //Remove o span do dom
     $('.floating-number.' + className).remove();
+
+    //Remove respectivo input
+    removeInput(className);
+
     //Remove a classe do elemento que tinha sido selecionado
     $('.' + className).removeClass(className + ' selected-element-metrics');
+
+    //Verifica se todas as métricas foram deletadas, se sim, reseta o contador
+    if ($('.selected-element-metrics').length == 0) selectedNumber = 1;
+  }
+
+  function removeInput(identifier) {
+    $('.ipt-metric.' + identifier).remove();
   }
 
   function updatePosition(pos, el) {
@@ -105,6 +120,7 @@ $(document).ready(function() {
 
   function resetAll() {
     selectedNumber = 1;
+    $('.inputs-metricas').empty();
     $('.floating-number').remove();
     $('*').removeClass(finding);
     $('*').removeClass(selected);
@@ -135,6 +151,19 @@ $(document).ready(function() {
     $(document).on('click', '.btn-resetar', function(e) {
       resetAll();
     });
+
+    $(document).on('focusout', '.ipt-attr-metric', function(e) {
+      updateMarker($(this));
+    });
+
+    //Regex para bloquear caracteres especiais no input
+    $(document).on('input', '.ipt-attr-metric', function() {
+      $(this).val(
+        $(this)
+          .val()
+          .replace(/[^a-z0-9 ]/gi, '')
+      );
+    });
   }
 
   function draggableDiv() {
@@ -160,12 +189,14 @@ $(document).ready(function() {
   function inputMetric(number) {
     return (
       `
-	<div class="ipt-metric">
+	<div class="ipt-metric float-nr` +
+      number +
+      `">
 		<span class="spn-num-metric"> ` +
       number +
       `</span>
-		<input class="ipt-attr-metric" placeholder="Atributo" type="text"></input>
-		<input type="checkbox"></input>
+		<input class="ipt-attr-metric" maxlength="20" placeholder="atributo" type="text"></input>
+		<input class="ck-postpone" type="checkbox" title="postpone"></input>
 	</div>
 	`
     );
@@ -226,7 +257,6 @@ $(document).ready(function() {
     $('#code-snip-overlay').show();
     $('.code-snippet-bg').show();
 
-    //todo metrics.js
     buildScript();
   }
 
@@ -239,7 +269,9 @@ $(document).ready(function() {
     let fullJS = '';
     const clickId = 'hue2';
     $('.selected-element-metrics').each(function(idx) {
-      const identifier = 'hue';
+      //Pega o Id do elemento
+      const identifier = getElementIdentifier($(this));
+
       const script =
         `$(document).on('click','` +
         identifier +
@@ -259,5 +291,48 @@ $(document).ready(function() {
     });
 
     $('.txt-code-snip').text(fullJS);
+  }
+
+  function updateMarker(element) {
+    const el = element.parent()[0];
+    const className = Array.from(el.classList).find(className => className.indexOf('float-nr') !== -1);
+    const floatingElement = $('.floating-number.' + className);
+    if (!floatingElement.hasClass('floating-with-attr')) {
+      floatingElement.addClass('floating-with-attr');
+      floatingElement.text(floatingElement.text() + ' - ' + element.val());
+    } else {
+      const number = floatingElement.text().substring(0, floatingElement.text().indexOf('-') + 1);
+      floatingElement.text(number + element.val());
+    }
+  }
+
+  /*
+  * Função que verifica se o elemento faz parte da estrutura do plugin
+  * se fizer parte, não deixa que as funcionalidades do plugin interfiram
+  * no próprio plugin
+  */
+  function isPartOfStructure(el) {
+    //Se estiver dentro da div draggable
+    if (el.parents('#draggable-div').length || el.attr('id') == 'draggable-div') {
+      return true;
+    }
+
+    //Ou se for o overlay ou code snippet
+    if (el.attr('id') == 'code-snip-overlay' || el.parents('.code-snippet-bg').length || el.attr('class') == 'code-snippet-bg') {
+      return true;
+    }
+
+    return false;
+  }
+
+  function getElementIdentifier(el) {
+    let identifier = ''
+    identifier = el.attr('id');
+    if (!identifier.trim()) {
+      identifier = Array.from(el[0].classList).find(className => className != 'selected-element-metrics' && className.indexOf('float-nr') == -1);
+      return '.'+identifier;
+    }else{
+      return '#'+identifier;
+    }
   }
 });
