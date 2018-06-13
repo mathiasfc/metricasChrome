@@ -164,6 +164,25 @@ $(document).ready(function() {
           .replace(/[^a-z0-9 ]/gi, '')
       );
     });
+
+    $(document).on('click', '.btn-copiar-script', function() {
+      $('.txt-code-snip').select();
+      document.execCommand('copy');
+      $('.txt-code-snip').blur();
+      alert('Copiado! ( ͡° ͜ʖ ͡°)');
+    });
+
+    $(document).on('click','.config-metric', function(){
+      $(this).siblings('.div-config-metric').toggle();
+    });
+
+    $(document).on('click','*', function(e){
+      if(e.target.className == 'div-config-metric' || e.target.className == 'config-metric' || $(this).parents().hasClass('div-config-metric')){
+        return
+      }else{
+        $('.div-config-metric').hide();
+      }
+    });
   }
 
   function draggableDiv() {
@@ -172,7 +191,7 @@ $(document).ready(function() {
 		  <div id="draggable-div-header">Selecione...</div>
 		  <span class="spn-metricas-selecionadas">Métricas: <span class="spn-metricas-nr">0</span></span>
 		  <div class="inputs-metricas"></div>
-		  <button class="btn-resetar btn-drag">Resetar Métricas</button>
+		  <!--<button class="btn-resetar btn-drag">Resetar Métricas</button>-->
 		  <button class="btn-gerar-script btn-drag">Gerar Script</button>
 	</div>`;
   }
@@ -195,8 +214,14 @@ $(document).ready(function() {
 		<span class="spn-num-metric"> ` +
       number +
       `</span>
-		<input class="ipt-attr-metric" maxlength="20" placeholder="atributo" type="text"></input>
-		<input class="ck-postpone" type="checkbox" title="postpone"></input>
+    <input class="ipt-attr-metric" maxlength="20" placeholder="atributo" type="text"></input>
+    <span class="config-metric" title="Configurações">&#9776;</span>
+    <div class="div-config-metric">
+      <div style="display:block;">
+        <span class="span-div-config-metric">Postpone </span><input class="ck-postpone" type="checkbox" title="postpone"></input>
+      </div>
+      <span class="span-div-config-metric">Unique </span><input class="ck-unique" type="checkbox" style="margin-left: 19px;" title="unique attr"></input>
+    </div>
 	</div>
 	`
     );
@@ -208,39 +233,32 @@ $(document).ready(function() {
       pos3 = 0,
       pos4 = 0;
     if (document.getElementById(elmnt.id + '-header')) {
-      /* if present, the header is where you move the DIV from:*/
       document.getElementById(elmnt.id + '-header').onmousedown = dragMouseDown;
     } else {
-      /* otherwise, move the DIV from anywhere inside the DIV:*/
       elmnt.onmousedown = dragMouseDown;
     }
 
     function dragMouseDown(e) {
       e = e || window.event;
-      // get the mouse cursor position at startup:
       pos3 = e.clientX;
       pos4 = e.clientY;
       document.onmouseup = closeDragElement;
-      // call a function whenever the cursor moves:
       document.onmousemove = elementDrag;
       $('#draggable-div').css('opacity', '0.8');
     }
 
     function elementDrag(e) {
       e = e || window.event;
-      // calculate the new cursor position:
       pos1 = pos3 - e.clientX;
       pos2 = pos4 - e.clientY;
       pos3 = e.clientX;
       pos4 = e.clientY;
-      // set the element's new position:
       elmnt.style.top = elmnt.offsetTop - pos2 + 'px';
       elmnt.style.left = elmnt.offsetLeft - pos1 + 'px';
       elmnt.style.right = '';
     }
 
     function closeDragElement() {
-      /* stop moving when mouse button is released:*/
       document.onmouseup = null;
       document.onmousemove = null;
       $('#draggable-div').css('opacity', '1');
@@ -255,6 +273,7 @@ $(document).ready(function() {
 
   function showCodeSnippet() {
     $('#code-snip-overlay').show();
+    $('body').css('overflow-y', 'hidden');
     $('.code-snippet-bg').show();
 
     buildScript();
@@ -262,35 +281,49 @@ $(document).ready(function() {
 
   function hideCodeSnippet() {
     $('#code-snip-overlay').hide();
+    $('body').css('overflow-y', 'scroll');
     $('.code-snippet-bg').hide();
   }
 
   function buildScript() {
     let fullJS = '';
-    const clickId = 'hue2';
+    const clickId = 'ActionX';
     $('.selected-element-metrics').each(function(idx) {
       //Pega o Id do elemento
       const identifier = getElementIdentifier($(this));
+      const attribute = getElementAttribute($(this));
+      const postpone = getElementPostponeCheck($(this)) ? ", 'postpone'" : '';
+      const metricNumber = Array.from(this.classList)
+        .find(className => className.indexOf('float-nr') !== -1)
+        .replace('float-nr', '');
 
       const script =
-        `$(document).on('click','` +
+        `//` +
+        metricNumber +
+        ` - ` +
+        attribute +
+        `
+jQuery(document).on('click', '` +
         identifier +
-        `', function(e) {
-   trigger.` +
+        `', () => {
+   trigger.fire(` +
         clickId +
-        `.fire('atributo');
+        `, '` +
+        attribute +
+        `'` +
+        postpone +
+        `);
    e.stopPropagation();
-});
-		`;
+});`;
 
       if (idx == 0) {
         fullJS += script;
       } else {
-        fullJS += '\n' + script;
+        fullJS += '\n\n' + script;
       }
     });
 
-    $('.txt-code-snip').text(fullJS);
+    $('.txt-code-snip').val(fullJS);
   }
 
   function updateMarker(element) {
@@ -325,14 +358,61 @@ $(document).ready(function() {
     return false;
   }
 
+  /*
+  * Função que busca o identificador do elemento.
+  * Primeiramente procura pelo ID, caso não encontre, procura o caminho (Xpath).
+  */
   function getElementIdentifier(el) {
-    let identifier = ''
-    identifier = el.attr('id');
-    if (!identifier.trim()) {
-      identifier = Array.from(el[0].classList).find(className => className != 'selected-element-metrics' && className.indexOf('float-nr') == -1);
-      return '.'+identifier;
-    }else{
-      return '#'+identifier;
+    let identifier = el.attr('id');
+    //id
+    if (identifier) {
+      return '#' + identifier.trim();
+    } else {
+      //identifier = Array.from(el[0].classList).find(className => className != 'selected-element-metrics' && className.indexOf('float-nr') == -1);
+      return el.getPath();
     }
   }
+
+  function getElementAttribute(el) {
+    const attr = Array.from(el[0].classList).find(className => className.indexOf('float-nr') !== -1);
+    return $('.ipt-metric.' + attr)
+      .find('.ipt-attr-metric')
+      .val();
+  }
+
+  function getElementPostponeCheck(el) {
+    const attr = Array.from(el[0].classList).find(className => className.indexOf('float-nr') !== -1);
+    return $('.ipt-metric.' + attr)
+      .find('.ck-postpone')
+      .is(':checked');
+  }
+
+  /*
+  * Função que busca o caminho do elemento.
+  * ref: https://stackoverflow.com/questions/2068272/getting-a-jquery-selector-for-an-element/2068381#2068381.
+  */
+  jQuery.fn.extend({
+    getPath: function() {
+      var path,
+        node = this;
+      while (node.length) {
+        var realNode = node[0],
+          name = realNode.localName;
+        if (!name) break;
+        name = name.toLowerCase();
+        var parent = node.parent();
+        var sameTagSiblings = parent.children(name);
+        if (sameTagSiblings.length > 1) {
+          allSiblings = parent.children();
+          var index = allSiblings.index(realNode) + 1;
+          if (index > 1) {
+            name += ':nth-child(' + index + ')';
+          }
+        }
+        path = name + (path ? '>' + path : '');
+        node = parent;
+      }
+      return path;
+    }
+  });
 });
