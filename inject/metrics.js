@@ -1,84 +1,198 @@
 $(document).ready(function() {
-  console.warn('Métricas Chrome iniciado');
+  const version = '1.0.0';
+  console.warn('Métricas Chrome - ' + version);
 
   const finding = 'finding-element-metrics';
   const selected = 'selected-element-metrics';
   let selectedNumber = 1;
 
-  //resetAll();
+  const App = {
+    init: function() {
+      //Cria as estruturas HTML com as funcionalidades.
+      App.structure.draggableDiv();
+      App.structure.codeSnippet();
 
-  //Inicia a div com as configurações
-  createDraggableDiv();
-  createCodeSnippet();
-  handlers();
-
-  //Mostra elementos que podem ser selecionados
-  $('*').hover(
-    function(e) {
-      if (isPartOfStructure($(this))) {
-        e.stopPropagation();
-        e.preventDefault();
-        return false;
-      }
-
-      $('.finding-element-metrics').removeClass(finding);
-      $(this).addClass(finding);
-      e.stopPropagation();
+      //Eventos
+      App.handlers();
     },
-    function(e) {
-      $(this).removeClass(finding);
-      e.stopPropagation();
-    }
-  );
+    structure: {
+      draggableDiv: function() {
+        $('body').prepend(draggableDiv());
+        App.dragElement(document.getElementById('draggable-div'));
 
-  //Marca elemento selecionado
-  $(document).on('click', '*', function(e) {
-    if (isPartOfStructure($(this))) {
-      //Não bloqueia o comportamento padrão do checkbox
-      if ($(this).attr('type') == 'checkbox') {
-        e.stopPropagation();
-        return;
+        //Posiciona na tela
+        $('#draggable-div').css('top', '10px');
+        $('#draggable-div').css('right', '10px');
+      },
+      codeSnippet: function() {
+        $('body').prepend(codeSnippet());
+      }
+    },
+    selectElement: function(el) {
+      //Cria a estrutura que vai númerar as métricas selecionadas.
+      const selectedStructure = '<span class="floating-number float-nr' + selectedNumber + '">' + selectedNumber + '</span>';
+      $(el).addClass(selected + ' float-nr' + selectedNumber);
+      $(el).attr('metric-position', selectedNumber);
+      $(el).after(selectedStructure);
+      //Posiciona a estrutura próxima ao elemento selecionado.
+      const elOffset = $(el).offset();
+      $('.floating-number.float-nr' + selectedNumber).offset({ top: elOffset.top - 22, left: elOffset.left });
+
+      //Verifica se a marcação está dentro do viewport, se não estiver posiciona ele embaixo da div selecionada.
+      if (!isElementInViewport($('.floating-number.float-nr' + selectedNumber))) {
+        $('.floating-number.float-nr' + selectedNumber).offset({ top: elOffset.top + $(el).height() + 6, left: elOffset.left });
+      }
+
+      insertInput(selectedNumber);
+
+      //Incrementa número para a próxima métrica
+      selectedNumber++;
+    },
+    dragElement: function(elmnt) {
+      var pos1 = 0,
+        pos2 = 0,
+        pos3 = 0,
+        pos4 = 0;
+      if (document.getElementById(elmnt.id + '-header')) {
+        document.getElementById(elmnt.id + '-header').onmousedown = dragMouseDown;
       } else {
+        elmnt.onmousedown = dragMouseDown;
+      }
+
+      function dragMouseDown(e) {
+        e = e || window.event;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+        $('#draggable-div').css('opacity', '0.8');
+      }
+
+      function elementDrag(e) {
+        e = e || window.event;
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        elmnt.style.top = elmnt.offsetTop - pos2 + 'px';
+        elmnt.style.left = elmnt.offsetLeft - pos1 + 'px';
+        elmnt.style.right = '';
+      }
+
+      function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+        $('#draggable-div').css('opacity', '1');
+      }
+    },
+    handlers: function() {
+      //Mostra elementos que podem ser selecionados
+      $('*').hover(
+        function(e) {
+          if (isPartOfStructure($(this))) {
+            e.stopPropagation();
+            e.preventDefault();
+            return false;
+          }
+
+          $('.finding-element-metrics').removeClass(finding);
+          $(this).addClass(finding);
+          e.stopPropagation();
+        },
+        function(e) {
+          $(this).removeClass(finding);
+          e.stopPropagation();
+        }
+      );
+
+      //Marca elemento selecionado
+      $(document).on('click', '*', function(e) {
+        if (isPartOfStructure($(this))) {
+          //Não bloqueia o comportamento padrão do checkbox
+          if ($(this).attr('type') == 'checkbox') {
+            e.stopPropagation();
+            return;
+          } else {
+            e.stopPropagation();
+            e.preventDefault();
+            return false;
+          }
+        }
+
+        //Se já estiver selecionado, remove a métrica
+        if ($(this).hasClass(selected) || $(this).hasClass('floating-number')) {
+          removeSelectedElement(this);
+        }
+        //Se não estiver selecionado, seleciona e inclui um input
+        else {
+          App.selectElement(this);
+        }
+
+        updateMetricsCount();
         e.stopPropagation();
         e.preventDefault();
         return false;
-      }
+      });
+
+      $(document).on('click', '.btn-gerar-script', function(e) {
+        showCodeSnippet();
+      });
+
+      $(document).on('click', '#code-snip-overlay', function(e) {
+        hideCodeSnippet();
+      });
+
+      $(document).on('click', '.btn-resetar', function(e) {
+        resetAll();
+      });
+
+      $(document).on('focusout', '.ipt-attr-metric', function(e) {
+        updateMarker($(this));
+      });
+
+      //Regex para bloquear caracteres especiais no input
+      $(document).on('input', '.ipt-attr-metric', function() {
+        $(this).val(
+          $(this)
+            .val()
+            .replace(/[^a-z0-9 ]/gi, '')
+        );
+      });
+
+      $(document).on('click', '.btn-copiar-script', function() {
+        $('.txt-code-snip').select();
+        document.execCommand('copy');
+        $('.txt-code-snip').blur();
+        alert('Copiado! ( ͡° ͜ʖ ͡°)');
+      });
+
+      $(document).on('click', '.config-metric', function() {
+        $(this)
+          .siblings('.div-config-metric')
+          .toggle();
+      });
+
+      $(document).on('click', '*', function(e) {
+        if (
+          e.target.className == 'div-config-metric' ||
+          e.target.className == 'config-metric' ||
+          $(this)
+            .parents()
+            .hasClass('div-config-metric')
+        ) {
+          return;
+        } else {
+          $('.div-config-metric').hide();
+        }
+      });
     }
+  };
 
-    //Se já estiver selecionado, remove a métrica
-    if ($(this).hasClass(selected) || $(this).hasClass('floating-number')) {
-      removeSelectedElement(this);
-    }
-    //Se não estiver selecionado, seleciona e inclui um input
-    else {
-      selectElement(this);
-    }
+  //Inicializa a extensão
+  App.init();
 
-    updateMetricsCount();
-    e.stopPropagation();
-    e.preventDefault();
-    return false;
-  });
-
-  function selectElement(el) {
-    //Cria a estrutura que vai númerar as métricas selecionadas.
-    const selectedStructure = '<span class="floating-number float-nr' + selectedNumber + '">' + selectedNumber + '</span>';
-    $(el).addClass(selected + ' float-nr' + selectedNumber);
-    $(el).after(selectedStructure);
-    //Posiciona a estrutura próxima ao elemento selecionado.
-    const elOffset = $(el).offset();
-    $('.floating-number.float-nr' + selectedNumber).offset({ top: elOffset.top - 22, left: elOffset.left });
-
-    //Verifica se a marcação está dentro do viewport, se não estiver posiciona ele embaixo da div selecionada.
-    if (!isElementInViewport($('.floating-number.float-nr' + selectedNumber))) {
-      $('.floating-number.float-nr' + selectedNumber).offset({ top: elOffset.top + $(el).height() + 6, left: elOffset.left });
-    }
-
-    insertInput(selectedNumber);
-
-    //Incrementa número para a próxima métrica
-    selectedNumber++;
-  }
+  //Cria os eventos com as funcionalidades da extensão (ex: hover/click/focusout/...)
+  //handlers();
 
   function insertInput(number) {
     $('.inputs-metricas').append(inputMetric(number));
@@ -91,6 +205,9 @@ $(document).ready(function() {
 
     //Remove respectivo input
     removeInput(className);
+
+    //Remove o indicador de posição
+    $('.' + className).removeAttr('metric-position');
 
     //Remove a classe do elemento que tinha sido selecionado
     $('.' + className).removeClass(className + ' selected-element-metrics');
@@ -127,64 +244,6 @@ $(document).ready(function() {
     $('.spn-metricas-nr').text(0);
   }
 
-  function createDraggableDiv() {
-    $('body').prepend(draggableDiv());
-    dragElement(document.getElementById('draggable-div'));
-
-    //Posiciona na tela
-    $('#draggable-div').css('right', '10px');
-  }
-
-  function createCodeSnippet() {
-    $('body').prepend(codeSnippet());
-  }
-
-  function handlers() {
-    $(document).on('click', '.btn-gerar-script', function(e) {
-      showCodeSnippet();
-    });
-
-    $(document).on('click', '#code-snip-overlay', function(e) {
-      hideCodeSnippet();
-    });
-
-    $(document).on('click', '.btn-resetar', function(e) {
-      resetAll();
-    });
-
-    $(document).on('focusout', '.ipt-attr-metric', function(e) {
-      updateMarker($(this));
-    });
-
-    //Regex para bloquear caracteres especiais no input
-    $(document).on('input', '.ipt-attr-metric', function() {
-      $(this).val(
-        $(this)
-          .val()
-          .replace(/[^a-z0-9 ]/gi, '')
-      );
-    });
-
-    $(document).on('click', '.btn-copiar-script', function() {
-      $('.txt-code-snip').select();
-      document.execCommand('copy');
-      $('.txt-code-snip').blur();
-      alert('Copiado! ( ͡° ͜ʖ ͡°)');
-    });
-
-    $(document).on('click','.config-metric', function(){
-      $(this).siblings('.div-config-metric').toggle();
-    });
-
-    $(document).on('click','*', function(e){
-      if(e.target.className == 'div-config-metric' || e.target.className == 'config-metric' || $(this).parents().hasClass('div-config-metric')){
-        return
-      }else{
-        $('.div-config-metric').hide();
-      }
-    });
-  }
-
   function draggableDiv() {
     return `
 	<div id="draggable-div">
@@ -200,7 +259,7 @@ $(document).ready(function() {
     return `
 	<div id="code-snip-overlay"></div>
 	<div class="code-snippet-bg">
-		<textarea class="txt-code-snip"></textarea>
+		<textarea class="txt-code-snip" spellcheck="false"></textarea>
 		<button class="btn-copiar-script">Copiar</button>
 	</div>`;
   }
@@ -220,50 +279,14 @@ $(document).ready(function() {
       <div style="display:block;">
         <span class="span-div-config-metric">Postpone </span><input class="ck-postpone" type="checkbox" title="postpone"></input>
       </div>
-      <span class="span-div-config-metric">Unique </span><input class="ck-unique" type="checkbox" style="margin-left: 19px;" title="unique attr"></input>
+      <span class="span-div-config-metric">Unique </span><input class="ck-unique" type="checkbox" style="margin-left: 20px;" title="unique attr"></input>
     </div>
 	</div>
 	`
     );
   }
 
-  function dragElement(elmnt) {
-    var pos1 = 0,
-      pos2 = 0,
-      pos3 = 0,
-      pos4 = 0;
-    if (document.getElementById(elmnt.id + '-header')) {
-      document.getElementById(elmnt.id + '-header').onmousedown = dragMouseDown;
-    } else {
-      elmnt.onmousedown = dragMouseDown;
-    }
-
-    function dragMouseDown(e) {
-      e = e || window.event;
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-      document.onmouseup = closeDragElement;
-      document.onmousemove = elementDrag;
-      $('#draggable-div').css('opacity', '0.8');
-    }
-
-    function elementDrag(e) {
-      e = e || window.event;
-      pos1 = pos3 - e.clientX;
-      pos2 = pos4 - e.clientY;
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-      elmnt.style.top = elmnt.offsetTop - pos2 + 'px';
-      elmnt.style.left = elmnt.offsetLeft - pos1 + 'px';
-      elmnt.style.right = '';
-    }
-
-    function closeDragElement() {
-      document.onmouseup = null;
-      document.onmousemove = null;
-      $('#draggable-div').css('opacity', '1');
-    }
-  }
+  function dragElement(elmnt) {}
 
   function updateMetricsCount() {
     const nrMetricas = $('.selected-element-metrics').length;
@@ -288,40 +311,46 @@ $(document).ready(function() {
   function buildScript() {
     let fullJS = '';
     const clickId = 'ActionX';
-    $('.selected-element-metrics').each(function(idx) {
-      //Pega o Id do elemento
-      const identifier = getElementIdentifier($(this));
-      const attribute = getElementAttribute($(this));
-      const postpone = getElementPostponeCheck($(this)) ? ", 'postpone'" : '';
-      const metricNumber = Array.from(this.classList)
-        .find(className => className.indexOf('float-nr') !== -1)
-        .replace('float-nr', '');
 
-      const script =
-        `//` +
-        metricNumber +
-        ` - ` +
-        attribute +
-        `
+    //Ordena as métricas selecionadas e percorre para montar o script
+    $('.selected-element-metrics')
+      .sort(sortMetrics)
+      .each(function(idx) {
+        const identifier = getElementIdentifier($(this));
+        const attribute = getElementAttribute($(this));
+        const postpone = getElementPostponeCheck($(this)) ? ", 'postpone'" : '';
+        const unique = getElementUniqueCheck($(this)) ? 'unique' : '';
+        const metricNumber = Array.from(this.classList)
+          .find(className => className.indexOf('float-nr') !== -1)
+          .replace('float-nr', '');
+
+        const script =
+          `//` +
+          metricNumber +
+          ` - ` +
+          attribute +
+          `
 jQuery(document).on('click', '` +
-        identifier +
-        `', () => {
-   trigger.fire(` +
-        clickId +
-        `, '` +
-        attribute +
-        `'` +
-        postpone +
-        `);
+          identifier +
+          `', (e) => {
+   trigger.` +
+          (unique ? unique : 'fire') +
+          `(` +
+          clickId +
+          `, '` +
+          attribute +
+          `'` +
+          postpone +
+          `);
    e.stopPropagation();
 });`;
 
-      if (idx == 0) {
-        fullJS += script;
-      } else {
-        fullJS += '\n\n' + script;
-      }
-    });
+        if (idx == 0) {
+          fullJS += script;
+        } else {
+          fullJS += '\n\n' + script;
+        }
+      });
 
     $('.txt-code-snip').val(fullJS);
   }
@@ -331,8 +360,10 @@ jQuery(document).on('click', '` +
     const className = Array.from(el.classList).find(className => className.indexOf('float-nr') !== -1);
     const floatingElement = $('.floating-number.' + className);
     if (!floatingElement.hasClass('floating-with-attr')) {
-      floatingElement.addClass('floating-with-attr');
-      floatingElement.text(floatingElement.text() + ' - ' + element.val());
+      if (element.val()) {
+        floatingElement.addClass('floating-with-attr');
+        floatingElement.text(floatingElement.text() + ' - ' + element.val());
+      }
     } else {
       const number = floatingElement.text().substring(0, floatingElement.text().indexOf('-') + 1);
       floatingElement.text(number + element.val());
@@ -385,6 +416,17 @@ jQuery(document).on('click', '` +
     return $('.ipt-metric.' + attr)
       .find('.ck-postpone')
       .is(':checked');
+  }
+
+  function getElementUniqueCheck(el) {
+    const attr = Array.from(el[0].classList).find(className => className.indexOf('float-nr') !== -1);
+    return $('.ipt-metric.' + attr)
+      .find('.ck-unique')
+      .is(':checked');
+  }
+
+  function sortMetrics(a, b) {
+    return $(a).attr('metric-position') > $(b).attr('metric-position');
   }
 
   /*
