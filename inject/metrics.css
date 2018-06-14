@@ -137,7 +137,8 @@ div#draggable-div-header {
   border-radius: 3px !important;
 }
 
-.txt-code-snip {
+textarea.txt-code-snip {
+  all: initial !important;
   height: 85% !important;
   width: 99% !important;
   resize: none !important;
@@ -146,8 +147,10 @@ div#draggable-div-header {
   border-right: 2px solid #e4e4e4 !important;
   outline: none !important;
   box-shadow: 0px 0px 24px -3px rgba(0, 0, 0, 0.75) !important;
-  font-size: 11px !important;
+  font-size: 14px !important;
   border-radius: 3px !important;
+  background-color: white !important;
+  font-family: Arial, Helvetica, sans-serif !important;
 }
 
 body > div.code-snippet-bg > button.btn-copiar-script {

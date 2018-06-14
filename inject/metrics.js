@@ -344,7 +344,7 @@ $(document).ready(function() {
 jQuery(document).on('click', '` +
               identifier +
               `', (e) => {
-  trigger.` +
+   trigger.` +
               (unique ? unique : 'fire') +
               `(` +
               clickId +
@@ -353,7 +353,7 @@ jQuery(document).on('click', '` +
               `'` +
               postpone +
               `);
-  e.stopPropagation();
+   e.stopPropagation();
 });`;
 
             if (idx == 0) {
