@@ -119,6 +119,31 @@ div#draggable-div-header {
   z-index: 9999999999 !important;
 }
 
+#metrics-loading-overlay {
+  position: fixed !important;
+  display: none;
+  width: 100% !important;
+  height: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  z-index: 2 !important;
+  z-index: 9999999999 !important;
+}
+
+#img-loading-overlay {
+  height: 50px !important;
+  width: auto !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  margin: auto !important;
+}
+
 .code-snippet-bg {
   position: fixed !important;
   display: none;
@@ -249,24 +274,43 @@ div.div-config-metric {
   box-shadow: rgba(0, 0, 0, 0.75) 0px 0px 24px -3px !important;
   border-width: 1px 2px 1px 1px !important;
   border-style: solid !important;
-  border-color: rgb(204, 204, 204) rgb(228, 228, 228) rgb(204, 204, 204) rgb(204, 204, 204) !important;
+  border-color: rgb(204, 204, 204) rgb(228, 228, 228) rgb(204, 204, 204)
+    rgb(204, 204, 204) !important;
 }
 
-#draggable-div > div.inputs-metricas > div > div > div > span.span-div-config-metric,
-#draggable-div > div.inputs-metricas > div.ipt-metric > div > span.span-div-config-metric {
+#draggable-div
+  > div.inputs-metricas
+  > div
+  > div
+  > div
+  > span.span-div-config-metric,
+#draggable-div
+  > div.inputs-metricas
+  > div.ipt-metric
+  > div
+  > span.span-div-config-metric {
   all: initial;
   font-size: 14px !important;
   font-family: Arial, Helvetica, sans-serif !important;
   color: black !important;
 }
 
-#draggable-div > div.inputs-metricas > div.ipt-metric.float-nr1 > div > input.ck-unique {
+#draggable-div
+  > div.inputs-metricas
+  > div.ipt-metric.float-nr1
+  > div
+  > input.ck-unique {
   all: initial !important;
   margin-left: 20px !important;
   margin-top: 5px !important;
 }
 
-#draggable-div > div.inputs-metricas > div.ipt-metric.float-nr1 > div > div > input.ck-postpone {
+#draggable-div
+  > div.inputs-metricas
+  > div.ipt-metric.float-nr1
+  > div
+  > div
+  > input.ck-postpone {
   all: initial !important;
   margin-left: 6px !important;
 }
