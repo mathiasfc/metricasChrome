@@ -2,11 +2,11 @@
 loadingScreen();
 
 $(document).ready(function() {
-  const version = "1.0.0";
-  console.warn("Métricas Chrome - " + version);
+  const version = '1.0.0';
+  console.warn('Métricas Chrome - ' + version);
 
-  const finding = "finding-element-metrics";
-  const selected = "selected-element-metrics";
+  const finding = 'finding-element-metrics';
+  const selected = 'selected-element-metrics';
   let selectedNumber = 1;
 
   const App = {
@@ -30,22 +30,23 @@ $(document).ready(function() {
       App.handlers.copyCode();
       App.handlers.metricConfig();
       App.handlers.hideMetricConfig();
+      App.handlers.metricConfigClickCheck();
     },
     structure: {
       hideLoadingScreen: function() {
-        $("#metrics-loading-overlay").hide();
-        $("body").css("overflow-y", "auto");
+        $('#metrics-loading-overlay').hide();
+        $('body').css('overflow-y', 'auto');
       },
       draggableDiv: function() {
-        $("body").prepend(App.structure.draggableDivHTML());
-        App.functions.dragElement(document.getElementById("draggable-div"));
+        $('body').prepend(App.structure.draggableDivHTML());
+        App.functions.dragElement(document.getElementById('draggable-div'));
 
         //Posiciona na tela
-        $("#draggable-div").css("top", "10px");
-        $("#draggable-div").css("right", "10px");
+        $('#draggable-div').css('top', '10px');
+        $('#draggable-div').css('right', '10px');
       },
       codeSnippet: function() {
-        $("body").prepend(App.structure.codeSnippetHTML());
+        $('body').prepend(App.structure.codeSnippetHTML());
       },
       draggableDivHTML: function() {
         return `
@@ -68,30 +69,21 @@ $(document).ready(function() {
     },
     selectElement: function(el) {
       //Cria a estrutura que vai númerar as métricas selecionadas.
-      const selectedStructure =
-        '<span class="floating-number float-nr' +
-        selectedNumber +
-        '">' +
-        selectedNumber +
-        "</span>";
-      $(el).addClass(selected + " float-nr" + selectedNumber);
-      $(el).attr("metric-position", selectedNumber);
+      const selectedStructure = '<span class="floating-number float-nr' + selectedNumber + '">' + selectedNumber + '</span>';
+      $(el).addClass(selected + ' float-nr' + selectedNumber);
+      $(el).attr('metric-position', selectedNumber);
       $(el).after(selectedStructure);
       //Posiciona a estrutura próxima ao elemento selecionado.
       const elOffset = $(el).offset();
-      $(".floating-number.float-nr" + selectedNumber).offset({
+      $('.floating-number.float-nr' + selectedNumber).offset({
         top: elOffset.top - 22,
         left: elOffset.left
       });
       //$('.floating-number.float-nr' + selectedNumber).attr('style', 'top: ' + (elOffset.top - 24) + 'px !important; left: ' + elOffset.left + 'px !important;');
 
       //Verifica se a marcação está dentro do viewport, se não estiver posiciona ele embaixo da div selecionada.
-      if (
-        !App.functions.isElementInViewport(
-          $(".floating-number.float-nr" + selectedNumber)
-        )
-      ) {
-        $(".floating-number.float-nr" + selectedNumber).offset({
+      if (!App.functions.isElementInViewport($('.floating-number.float-nr' + selectedNumber))) {
+        $('.floating-number.float-nr' + selectedNumber).offset({
           top: elOffset.top + $(el).height() + 6,
           left: elOffset.left
         });
@@ -107,12 +99,12 @@ $(document).ready(function() {
       preventPageLeave: function() {
         //Previne que o usuário seja redirecionado e perca as informações
         window.onbeforeunload = function() {
-          //return false;
+          return false;
         };
       },
       searchPageElement: function() {
         //Mostra elementos que podem ser selecionados
-        $("*").hover(
+        $('*').hover(
           function(e) {
             if (App.functions.isPartOfStructure($(this))) {
               e.stopPropagation();
@@ -120,7 +112,7 @@ $(document).ready(function() {
               return false;
             }
 
-            $(".finding-element-metrics").removeClass(finding);
+            $('.finding-element-metrics').removeClass(finding);
             $(this).addClass(finding);
             e.stopPropagation();
           },
@@ -132,10 +124,10 @@ $(document).ready(function() {
       },
       selectPageElement: function() {
         //Marca elemento selecionado
-        $(document).on("click", "*", function(e) {
+        $(document).on('click', '*', function(e) {
           if (App.functions.isPartOfStructure($(this))) {
             //Não bloqueia o comportamento padrão do checkbox
-            if ($(this).attr("type") == "checkbox") {
+            if ($(this).attr('type') == 'checkbox') {
               e.stopPropagation();
               return;
             } else {
@@ -146,10 +138,7 @@ $(document).ready(function() {
           }
 
           //Se já estiver selecionado, remove a métrica
-          if (
-            $(this).hasClass(selected) ||
-            $(this).hasClass("floating-number")
-          ) {
+          if ($(this).hasClass(selected) || $(this).hasClass('floating-number')) {
             App.functions.removeSelectedElement(this);
           }
           //Se não estiver selecionado, seleciona e inclui um input
@@ -164,62 +153,74 @@ $(document).ready(function() {
         });
       },
       generateScript: function() {
-        $(document).on("click", ".btn-gerar-script", function(e) {
+        $(document).on('click', '.btn-gerar-script', function(e) {
           App.functions.showCodeSnippet();
         });
       },
       hideOverlay: function() {
-        $(document).on("click", "#code-snip-overlay", function(e) {
+        $(document).on('click', '#code-snip-overlay', function(e) {
           App.functions.hideCodeSnippet();
         });
       },
       resetAllMetrics: function() {
-        $(document).on("click", ".btn-resetar", function(e) {
+        $(document).on('click', '.btn-resetar', function(e) {
           App.functions.resetAll();
         });
       },
       focusOutAttr: function() {
-        $(document).on("focusout", ".ipt-attr-metric", function(e) {
+        $(document).on('focusout', '.ipt-attr-metric', function(e) {
           App.functions.updateMarker($(this));
         });
       },
       preventSpecialCharacters: function() {
         //Regex para bloquear caracteres especiais no input
-        $(document).on("input", ".ipt-attr-metric", function() {
+        $(document).on('input', '.ipt-attr-metric', function() {
           $(this).val(
             $(this)
               .val()
-              .replace(/[^a-z0-9 ]/gi, "")
+              .replace(/[^a-z0-9 ]/gi, '')
           );
         });
       },
       copyCode: function() {
-        $(document).on("click", ".btn-copiar-script", function() {
-          $(".txt-code-snip").select();
-          document.execCommand("copy");
-          $(".txt-code-snip").blur();
-          alert("Copiado! ( ͡° ͜ʖ ͡°)");
+        $(document).on('click', '.btn-copiar-script', function() {
+          $('.txt-code-snip').select();
+          document.execCommand('copy');
+          $('.txt-code-snip').blur();
+          alert('Copiado! ( ͡° ͜ʖ ͡°)');
         });
       },
       metricConfig: function() {
-        $(document).on("click", ".config-metric", function() {
+        $(document).on('click', '.config-metric', function() {
+          if ($('.div-config-metric').is(':visible')) {
+            $('.div-config-metric').hide();
+          }
           $(this)
-            .siblings(".div-config-metric")
+            .siblings('.div-config-metric')
             .toggle();
         });
       },
       hideMetricConfig: function() {
-        $(document).on("click", "*", function(e) {
+        $(document).on('click', '*', function(e) {
           if (
-            e.target.className == "div-config-metric" ||
-            e.target.className == "config-metric" ||
+            e.target.className == 'div-config-metric' ||
+            e.target.className == 'config-metric' ||
             $(this)
               .parents()
-              .hasClass("div-config-metric")
+              .hasClass('div-config-metric')
           ) {
             return;
           } else {
-            $(".div-config-metric").hide();
+            $('.div-config-metric').hide();
+          }
+        });
+      },
+      metricConfigClickCheck: function() {
+        $(document).on('click', '.div-check-config-metric', function(e) {
+          if ($(this).hasClass('config-checked')) {
+            $(this).removeClass('config-checked');
+          } else {
+            $(this).addClass('config-checked');
           }
         });
       }
@@ -230,10 +231,8 @@ $(document).ready(function() {
           pos2 = 0,
           pos3 = 0,
           pos4 = 0;
-        if (document.getElementById(elmnt.id + "-header")) {
-          document.getElementById(
-            elmnt.id + "-header"
-          ).onmousedown = dragMouseDown;
+        if (document.getElementById(elmnt.id + '-header')) {
+          document.getElementById(elmnt.id + '-header').onmousedown = dragMouseDown;
         } else {
           elmnt.onmousedown = dragMouseDown;
         }
@@ -244,7 +243,7 @@ $(document).ready(function() {
           pos4 = e.clientY;
           document.onmouseup = closeDragElement;
           document.onmousemove = elementDrag;
-          $("#draggable-div").css("opacity", "0.8");
+          $('#draggable-div').css('opacity', '0.8');
         }
 
         function elementDrag(e) {
@@ -253,41 +252,39 @@ $(document).ready(function() {
           pos2 = pos4 - e.clientY;
           pos3 = e.clientX;
           pos4 = e.clientY;
-          elmnt.style.top = elmnt.offsetTop - pos2 + "px";
-          elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
-          elmnt.style.right = "";
+          elmnt.style.top = elmnt.offsetTop - pos2 + 'px';
+          elmnt.style.left = elmnt.offsetLeft - pos1 + 'px';
+          elmnt.style.right = '';
         }
 
         function closeDragElement() {
           document.onmouseup = null;
           document.onmousemove = null;
-          $("#draggable-div").css("opacity", "1");
+          $('#draggable-div').css('opacity', '1');
         }
       },
       insertInput: function(number) {
-        $(".inputs-metricas").append(App.functions.inputMetric(number));
+        $('.inputs-metricas').append(App.functions.inputMetric(number));
       },
       removeSelectedElement: function(el) {
-        const className = Array.from(el.classList).find(
-          className => className.indexOf("float-nr") !== -1
-        );
+        const className = Array.from(el.classList).find(className => className.indexOf('float-nr') !== -1);
         //Remove o span do dom
-        $(".floating-number." + className).remove();
+        $('.floating-number.' + className).remove();
 
         //Remove respectivo input
         App.functions.removeInput(className);
 
         //Remove o indicador de posição
-        $("." + className).removeAttr("metric-position");
+        $('.' + className).removeAttr('metric-position');
 
         //Remove a classe do elemento que tinha sido selecionado
-        $("." + className).removeClass(className + " selected-element-metrics");
+        $('.' + className).removeClass(className + ' selected-element-metrics');
 
         //Verifica se todas as métricas foram deletadas, se sim, reseta o contador
-        if ($(".selected-element-metrics").length == 0) selectedNumber = 1;
+        if ($('.selected-element-metrics').length == 0) selectedNumber = 1;
       },
       removeInput: function(identifier) {
-        $(".ipt-metric." + identifier).remove();
+        $('.ipt-metric.' + identifier).remove();
       },
       updatePosition: function(pos, el) {
         setInterval(function() {
@@ -296,29 +293,19 @@ $(document).ready(function() {
       },
       isElementInViewport: function(el) {
         //special bonus for those using jQuery
-        if (typeof jQuery === "function" && el instanceof jQuery) {
+        if (typeof jQuery === 'function' && el instanceof jQuery) {
           el = el[0];
         }
         var rect = el.getBoundingClientRect();
-        return (
-          rect.top >= 0 &&
-          rect.left >= 0 &&
-          rect.bottom <=
-            (window.innerHeight ||
-              document.documentElement
-                .clientHeight) /*or $(window).height() */ &&
-          rect.right <=
-            (window.innerWidth ||
-              document.documentElement.clientWidth) /*or $(window).width() */
-        );
+        return rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) /*or $(window).height() */ && rect.right <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */;
       },
       resetAll: function() {
         selectedNumber = 1;
-        $(".inputs-metricas").empty();
-        $(".floating-number").remove();
-        $("*").removeClass(finding);
-        $("*").removeClass(selected);
-        $(".spn-metricas-nr").text(0);
+        $('.inputs-metricas').empty();
+        $('.floating-number').remove();
+        $('*').removeClass(finding);
+        $('*').removeClass(selected);
+        $('.spn-metricas-nr').text(0);
       },
       inputMetric: function(number) {
         return (
@@ -332,51 +319,49 @@ $(document).ready(function() {
         <input class="ipt-attr-metric" maxlength="20" placeholder="atributo" type="text"></input>
         <span class="config-metric" title="Configurações">&#9776;</span>
         <div class="div-config-metric">
-          <div style="display:block;">
-            <span class="span-div-config-metric">Postpone </span><input class="ck-postpone" type="checkbox" title="postpone"></input>
+          <div class="div-inner-first-config-metric">
+            <span class="span-div-config-metric">Postpone </span><!--<input class="ck-postpone" type="checkbox" title="postpone"></input>-->
+            <div class="div-check-config-metric ck-postpone"></div>
           </div>
-          <span class="span-div-config-metric">Unique </span><input class="ck-unique" type="checkbox" style="margin-left: 20px;" title="unique attr"></input>
+          <span class="span-div-config-metric">Unique </span><!--<input class="ck-unique" type="checkbox" style="margin-left: 20px;" title="unique attr"></input>-->
+          <div class="div-check-config-metric ck-unique"></div>
         </div>
       </div>
       `
         );
       },
       updateMetricsCount: function() {
-        const nrMetricas = $(".selected-element-metrics").length;
+        const nrMetricas = $('.selected-element-metrics').length;
         //$('.spn-metricas-nr').text(nrMetricas > 1 ? nrMetricas + ' selecionadas' : nrMetricas + ' selecionada');
-        $(".spn-metricas-nr").text(nrMetricas);
+        $('.spn-metricas-nr').text(nrMetricas);
       },
       showCodeSnippet: function() {
-        $("#code-snip-overlay").show();
-        $("body").css("overflow-y", "hidden");
-        $(".code-snippet-bg").show();
+        $('#code-snip-overlay').show();
+        $('body').css('overflow-y', 'hidden');
+        $('.code-snippet-bg').show();
 
         App.functions.buildScript();
       },
       hideCodeSnippet: function() {
-        $("#code-snip-overlay").hide();
-        $("body").css("overflow-y", "scroll");
-        $(".code-snippet-bg").hide();
+        $('#code-snip-overlay').hide();
+        $('body').css('overflow-y', 'scroll');
+        $('.code-snippet-bg').hide();
       },
       buildScript: function() {
-        let fullJS = "";
-        const clickId = "ActionX";
+        let fullJS = '';
+        const clickId = 'ActionX';
 
         //Ordena as métricas selecionadas e percorre para montar o script
-        $(".selected-element-metrics")
+        $('.selected-element-metrics')
           .sort(App.functions.sortMetrics)
           .each(function(idx) {
             const identifier = App.functions.getElementIdentifier($(this));
             const attribute = App.functions.getElementAttribute($(this));
-            const postpone = App.functions.getElementPostponeCheck($(this))
-              ? ", 'postpone'"
-              : "";
-            const unique = App.functions.getElementUniqueCheck($(this))
-              ? "unique"
-              : "";
+            const postpone = App.functions.getElementPostponeCheck($(this)) ? ", 'postpone'" : '';
+            const unique = App.functions.getElementUniqueCheck($(this)) ? 'unique' : '';
             const metricNumber = Array.from(this.classList)
-              .find(className => className.indexOf("float-nr") !== -1)
-              .replace("float-nr", "");
+              .find(className => className.indexOf('float-nr') !== -1)
+              .replace('float-nr', '');
 
             const script =
               `//` +
@@ -388,7 +373,7 @@ jQuery(document).on('click', '` +
               identifier +
               `', (e) => {
    trigger.` +
-              (unique ? unique : "fire") +
+              (unique ? unique : 'fire') +
               `(` +
               clickId +
               `, '` +
@@ -402,29 +387,23 @@ jQuery(document).on('click', '` +
             if (idx == 0) {
               fullJS += script;
             } else {
-              fullJS += "\n\n" + script;
+              fullJS += '\n\n' + script;
             }
           });
 
-        $(".txt-code-snip").val(fullJS);
+        $('.txt-code-snip').val(fullJS);
       },
       updateMarker: function(element) {
         const el = element.parent()[0];
-        const className = Array.from(el.classList).find(
-          className => className.indexOf("float-nr") !== -1
-        );
-        const floatingElement = $(".floating-number." + className);
-        if (!floatingElement.hasClass("floating-with-attr")) {
+        const className = Array.from(el.classList).find(className => className.indexOf('float-nr') !== -1);
+        const floatingElement = $('.floating-number.' + className);
+        if (!floatingElement.hasClass('floating-with-attr')) {
           if (element.val()) {
-            floatingElement.addClass("floating-with-attr");
-            floatingElement.text(
-              floatingElement.text() + " - " + element.val()
-            );
+            floatingElement.addClass('floating-with-attr');
+            floatingElement.text(floatingElement.text() + ' - ' + element.val());
           }
         } else {
-          const number = floatingElement
-            .text()
-            .substring(0, floatingElement.text().indexOf("-") + 1);
+          const number = floatingElement.text().substring(0, floatingElement.text().indexOf('-') + 1);
           floatingElement.text(number + element.val());
         }
       },
@@ -435,19 +414,12 @@ jQuery(document).on('click', '` +
        */
       isPartOfStructure: function(el) {
         //Se estiver dentro da div draggable
-        if (
-          el.parents("#draggable-div").length ||
-          el.attr("id") == "draggable-div"
-        ) {
+        if (el.parents('#draggable-div').length || el.attr('id') == 'draggable-div') {
           return true;
         }
 
         //Ou se for o overlay ou code snippet
-        if (
-          el.attr("id") == "code-snip-overlay" ||
-          el.parents(".code-snippet-bg").length ||
-          el.attr("class") == "code-snippet-bg"
-        ) {
+        if (el.attr('id') == 'code-snip-overlay' || el.parents('.code-snippet-bg').length || el.attr('class') == 'code-snippet-bg') {
           return true;
         }
 
@@ -458,42 +430,42 @@ jQuery(document).on('click', '` +
        * Primeiramente procura pelo ID, caso não encontre, procura o caminho (Xpath).
        */
       getElementIdentifier: function(el) {
-        let identifier = el.attr("id");
+        let identifier = el.attr('id');
         //id
         if (identifier) {
-          return "#" + identifier.trim();
+          return '#' + identifier.trim();
         } else {
           //identifier = Array.from(el[0].classList).find(className => className != 'selected-element-metrics' && className.indexOf('float-nr') == -1);
           return el.getPath();
         }
       },
       getElementAttribute: function(el) {
-        const attr = Array.from(el[0].classList).find(
-          className => className.indexOf("float-nr") !== -1
-        );
-        return $(".ipt-metric." + attr)
-          .find(".ipt-attr-metric")
+        const attr = Array.from(el[0].classList).find(className => className.indexOf('float-nr') !== -1);
+        return $('.ipt-metric.' + attr)
+          .find('.ipt-attr-metric')
           .val();
       },
 
       getElementPostponeCheck: function(el) {
-        const attr = Array.from(el[0].classList).find(
-          className => className.indexOf("float-nr") !== -1
-        );
-        return $(".ipt-metric." + attr)
+        const attr = Array.from(el[0].classList).find(className => className.indexOf('float-nr') !== -1);
+        /*return $(".ipt-metric." + attr)
           .find(".ck-postpone")
-          .is(":checked");
+          .is(":checked");*/
+        return $('.ipt-metric.' + attr)
+          .find('.ck-postpone')
+          .hasClass('config-checked');
       },
       getElementUniqueCheck: function(el) {
-        const attr = Array.from(el[0].classList).find(
-          className => className.indexOf("float-nr") !== -1
-        );
-        return $(".ipt-metric." + attr)
-          .find(".ck-unique")
-          .is(":checked");
+        const attr = Array.from(el[0].classList).find(className => className.indexOf('float-nr') !== -1);
+        /*return $('.ipt-metric.' + attr)
+          .find('.ck-unique')
+          .is(':checked');*/
+        return $('.ipt-metric.' + attr)
+          .find('.ck-unique')
+          .hasClass('config-checked');
       },
       sortMetrics: function(a, b) {
-        return $(a).attr("metric-position") > $(b).attr("metric-position");
+        return $(a).attr('metric-position') > $(b).attr('metric-position');
       }
     }
   };
@@ -520,10 +492,10 @@ jQuery(document).on('click', '` +
           allSiblings = parent.children();
           var index = allSiblings.index(realNode) + 1;
           if (index > 1) {
-            name += ":nth-child(" + index + ")";
+            name += ':nth-child(' + index + ')';
           }
         }
-        path = name + (path ? ">" + path : "");
+        path = name + (path ? '>' + path : '');
         node = parent;
       }
       return path;
@@ -532,9 +504,9 @@ jQuery(document).on('click', '` +
 });
 
 function loadingScreen() {
-  const imgSrc = "https://zippy.gfycat.com/SkinnySeveralAsianlion.gif";
-  if ($("#metrics-loading-overlay").length <= 0) {
-    $("body").prepend(
+  const imgSrc = 'https://zippy.gfycat.com/SkinnySeveralAsianlion.gif';
+  if ($('#metrics-loading-overlay').length <= 0) {
+    $('body').prepend(
       `<div id="metrics-loading-overlay">
           <img id="img-loading-overlay" src="` +
         imgSrc +
@@ -542,6 +514,6 @@ function loadingScreen() {
         </div>`
     );
   }
-  $("#metrics-loading-overlay").show();
-  $("body").css("overflow-y", "hidden");
+  $('#metrics-loading-overlay').show();
+  $('body').css('overflow-y', 'hidden');
 }

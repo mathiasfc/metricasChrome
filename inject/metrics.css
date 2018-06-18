@@ -80,7 +80,7 @@ div#draggable-div-header {
   color: #fff !important;
   border-radius: 2px !important;
   border: 1px solid transparent !important;
-  margin-top: 20px !important;
+  margin-top: 10px !important;
   cursor: pointer !important;
   outline: none !important;
   text-align: center !important;
@@ -259,6 +259,12 @@ span.spn-num-metric {
   color: black !important;
 }
 
+div.div-inner-first-config-metric {
+  display: block;
+  margin-bottom: 5px !important;
+  margin-top: 5px;
+}
+
 div.div-config-metric {
   all: initial;
   display: none;
@@ -274,45 +280,48 @@ div.div-config-metric {
   box-shadow: rgba(0, 0, 0, 0.75) 0px 0px 24px -3px !important;
   border-width: 1px 2px 1px 1px !important;
   border-style: solid !important;
-  border-color: rgb(204, 204, 204) rgb(228, 228, 228) rgb(204, 204, 204)
-    rgb(204, 204, 204) !important;
+  border-color: rgb(204, 204, 204) rgb(228, 228, 228) rgb(204, 204, 204) rgb(204, 204, 204) !important;
 }
 
-#draggable-div
-  > div.inputs-metricas
-  > div
-  > div
-  > div
-  > span.span-div-config-metric,
-#draggable-div
-  > div.inputs-metricas
-  > div.ipt-metric
-  > div
-  > span.span-div-config-metric {
+#draggable-div > div.inputs-metricas > div > div > div > span.span-div-config-metric,
+#draggable-div > div.inputs-metricas > div.ipt-metric > div > span.span-div-config-metric {
   all: initial;
   font-size: 14px !important;
   font-family: Arial, Helvetica, sans-serif !important;
   color: black !important;
 }
 
-#draggable-div
-  > div.inputs-metricas
-  > div.ipt-metric.float-nr1
-  > div
-  > input.ck-unique {
-  all: initial !important;
-  margin-left: 20px !important;
-  margin-top: 5px !important;
-}
-
-#draggable-div
-  > div.inputs-metricas
-  > div.ipt-metric.float-nr1
-  > div
-  > div
-  > input.ck-postpone {
+div.ck-postpone {
   all: initial !important;
   margin-left: 6px !important;
+  border: 1px solid grey !important;
+  width: 15px !important;
+  height: 15px !important;
+  position: absolute !important;
+  margin-top: 1px !important;
+  cursor: pointer !important;
+  background-color: #e6e6e6 !important;
+  border-radius: 2px !important;
+}
+
+div.ck-unique {
+  all: initial !important;
+  margin-left: 21px !important;
+  border: 1px solid grey !important;
+  width: 15px !important;
+  height: 15px !important;
+  position: absolute !important;
+  margin-top: 1px !important;
+  cursor: pointer !important;
+  background-color: #e6e6e6 !important;
+  border-radius: 2px !important;
+}
+
+div.config-checked,
+div.config-checked {
+  background-image: url(https://d30y9cdsu7xlg0.cloudfront.net/png/6156-200.png) !important;
+  background-size: cover !important;
+  /*background-color:lightgreen !important;*/
 }
 
 #draggable-div > div.inputs-metricas > div > div > div > input,
