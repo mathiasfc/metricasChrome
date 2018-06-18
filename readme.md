@@ -1,7 +1,7 @@
 
 # Métricas Chrome
 
-Extensão p/ o chrome que facilita na criação do script de métricas.
+Extensão para o chrome que facilita na criação do script de métricas.
 
 ## Instalação
 
@@ -11,7 +11,7 @@ Baixar ou clonar a pasta do projeto e seguir os seguintes passos no Google Chrom
 * CARREGAR SEM COMPACTAÇÃO
 * Selecionar a pasta que foi baixada/clonada anteriormente
 
-A extensão já deve estar aparecendo na barra das extensões. ![Screenshot](icon20.png)
+A extensão já deve estar aparecendo na barra das extensões. ![Screenshot](icon32.png)
 
 ## Observações
 
