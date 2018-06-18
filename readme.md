@@ -19,7 +19,7 @@ O código gerado pela extensão sempre deve ser **revisado**, principalmente o s
 
 ### Todo
 
-* Aprimorar a escolha do seletor. (Id, Classe, XPath).
+* Aprimorar a escolha do seletor (Id, Classe, XPath).
 * Aprimorar os elementos que podem ser selecionados.
 * Criação de métricas de page view.
 * Criação de métricas que medem o tempo de permanência na página.
